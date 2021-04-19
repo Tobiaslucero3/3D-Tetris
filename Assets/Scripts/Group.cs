@@ -39,6 +39,8 @@ public class Group : MonoBehaviour
                 break;
             }
         }
+
+       // Debug.Log(childWithTransform);
     }
 
     private int IsValidGridPos()
@@ -74,6 +76,7 @@ public class Group : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             transform.position += new Vector3(-1, 0, 0);
+            cam.transform.position += new Vector3(-1, 0, 0);
 
             // If the method returns 2 or we are in between borders
             if ((IsValidGridPos() == 2) || (inBetweenBorders))
@@ -84,12 +87,12 @@ public class Group : MonoBehaviour
             // The position is valid and not between borders
             else if (IsValidGridPos() == 1)
             {
-                cam.transform.position += new Vector3(-1, 0, 0);
                 UpdateGrid(); // Update the grid since it is valid
             }
             else
             {
                 transform.position += new Vector3(1, 0, 0); // Revert
+                cam.transform.position += new Vector3(1, 0, 0);
             }
         }
         // Move right
@@ -97,6 +100,7 @@ public class Group : MonoBehaviour
         {
             // Modify position
             transform.position += new Vector3(1, 0, 0);
+            cam.transform.position += new Vector3(1, 0, 0);
 
             // If the method returns 2 or we are in between borders
             if ((IsValidGridPos() == 2) || (inBetweenBorders))
@@ -107,12 +111,12 @@ public class Group : MonoBehaviour
             // Otherwise the position is entirely valid and not between borders
             else if (IsValidGridPos() == 1)
             {
-                cam.transform.position += new Vector3(1, 0, 0); 
                 UpdateGrid(); // Update the grid since it is valid
             }
             else
             {
                 transform.position += new Vector3(-1, 0, 0); // Its not valid so revert to original position
+                cam.transform.position += new Vector3(-1, 0, 0);
             }
         }
         // Rotate
@@ -151,6 +155,10 @@ public class Group : MonoBehaviour
             {
                 UpdateGrid(); // Update the grid since it is valid
             }
+            else if(IsValidGridPos() == 2)
+            {
+                UpdateGridInBetweenBorders();
+            }
             else
             {
                 transform.position += new Vector3(0, 1, 0); // Revert
@@ -165,12 +173,12 @@ public class Group : MonoBehaviour
                 enabled = false;
 
                 cam.transform.position = cameraPos;
-
+                /*
                 if ((transform.position.x < 7) || (transform.position.x > 23))
                 {
                     // Fix the sides
-                    FindObjectOfType<Board>().FixSides();
-                }
+                    //FindObjectOfType<Board>().FixSides();
+                }*/
             }
             lastFall = Time.time; // Update this as last time decreased y position
         }
@@ -198,12 +206,12 @@ public class Group : MonoBehaviour
             enabled = false;
 
             cam.transform.position = cameraPos;
-
+            /*
             if ((transform.position.x < 7) || (transform.position.x > 23))
             {
                 // Fix the sides
                 FindObjectOfType<Board>().FixSides();
-            }
+            }*/
         }
     }
 
@@ -256,38 +264,14 @@ public class Group : MonoBehaviour
                 }
             }
         }
-
-        inBetweenBorders = false; // Do this to verify that the piece is still in between the border
-        Vector2 v;
-
-        // Add new children to the grid
-        foreach (Transform child in transform)
-        {
-            v = Playfield.RoundVec2(child.position);
-
-            // If outside the left border sets the x component to the width
-            if (v.x < 0)
-            {
-                inBetweenBorders = true;
-                v.x = Playfield.w + v.x; // putting it on the right side
-                child.position = v;
-            }
-            // If outside the rigth border sets the x component to zero
-            else if (v.x >= Playfield.w)
-            {
-                inBetweenBorders = true;
-                v.x = v.x - Playfield.w; // putting it on the left side
-                child.position = v;
-            }
-            Playfield.grid[(int)v.x, (int)v.y] = child; // Back into the grid at new position
-        }
-
-        v = Playfield.RoundVec2(transform.position);
+        Vector2 v = Playfield.RoundVec2(transform.position);
 
         int transformPosX = (int)v.x;
 
         if ((transformPosX < 0) || (transformPosX >= Playfield.w))
         {
+            Debug.Log("Running");
+            /*
             // Get the x component of the piece that belonged to the actual transform
             int childPosX = (int)Mathf.Round(transform.GetChild(childWithTransform).transform.position.x);
 
@@ -298,18 +282,54 @@ public class Group : MonoBehaviour
             move = childPosX - (int)v.x; // The amount we have to compensate is the difference between my child's
             // position and my current position
 
+            Debug.Log(move);
+
             v.x = childPosX; // Set the new transform position to the old child position
+            */
+            
 
-            cam.transform.position = new Vector3(v.x, cam.transform.position.y, cam.transform.position.z);
+            if (transform.position.x >= Playfield.w)
+            {
+                transform.position -= new Vector3(Playfield.w, 0);
+            }
+            else
+            {
+                transform.position -= new Vector3(Playfield.w, 0);
+            }
+            cam.transform.position = new Vector3(transform.position.x, cam.transform.position.y, cam.transform.position.z);
+           // inBetweenBorders = false; // Do this to verify that the piece is still in between the border
+        }
 
-            transform.position = v; // Set the transform position to our vector
+        // Add new children to the grid
+        foreach (Transform child in transform)
+        {
+            v = Playfield.RoundVec2(child.position);
 
+            Debug.Log(v.x + " " + v.y);
+
+            // If outside the left border sets the x component to the width
+            if (v.x < 0)
+            {
+                inBetweenBorders = true;
+                v.x = Playfield.w + v.x; // putting it on the right side
+              //  child.position = v;
+            }
+            // If outside the rigth border sets the x component to zero
+            else if (v.x >= Playfield.w)
+            {
+                inBetweenBorders = true;
+                v.x = v.x - Playfield.w; // putting it on the left side
+               // child.position = v;
+            }
+            Playfield.grid[(int)v.x, (int)v.y] = child; // Back into the grid at new position
+        }
+           // transform.position = v; // Set the transform position to our vector     
+            /*
             // Now we actually go to every child and perform the transform to move it to the right place
             foreach (Transform child in transform)
             {
                 child.position -= new Vector3(move, 0, 0);
-            }
-        }
+            }*/
     }
 
     void UpdateGrid()
