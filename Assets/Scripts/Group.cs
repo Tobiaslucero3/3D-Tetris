@@ -294,7 +294,7 @@ public class Group : MonoBehaviour
             }
             else
             {
-                transform.position -= new Vector3(Playfield.w, 0);
+                transform.position += new Vector3(Playfield.w, 0);
             }
             cam.transform.position = new Vector3(transform.position.x, cam.transform.position.y, cam.transform.position.z);
            // inBetweenBorders = false; // Do this to verify that the piece is still in between the border
