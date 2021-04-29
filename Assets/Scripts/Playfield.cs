@@ -1,13 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Playfield : MonoBehaviour
 {
+    public GameObject ScoreText;
+    public int score;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        ScoreText.text = "Score: " + score;
+        score = 0;
     }
 
     public static int w = 30;
@@ -39,6 +44,7 @@ public class Playfield : MonoBehaviour
         {
             Destroy(grid[x, y].gameObject);
             grid[x, y] = null;
+            IncScore();
         }
     }
 
@@ -95,6 +101,13 @@ public class Playfield : MonoBehaviour
             }
         }
 
+    }
+
+    //This function increments the score
+    public static void IncScore()
+    {
+        score++;
+        ScoreText.getComponent<Text>().text = "Score: " + score;
     }
 
 }
