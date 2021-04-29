@@ -92,6 +92,7 @@ public class Playfield : MonoBehaviour
                 DeleteRow(y);
                 DecreaseRowsAbove(y + 1);
                 --y;
+                Score.score += 1;
             }
         }
 
