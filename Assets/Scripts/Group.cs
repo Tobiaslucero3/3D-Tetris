@@ -63,13 +63,11 @@ public class Group : MonoBehaviour
             // If the method returns 2 or we are in between borders
             if ((validPos == 2) || inBetweenBorders)
             {
-                inBetweenBorders = true; // We are still in between borders
                 UpdateGridInBetweenBorders(); // Update in between borders
             }
             // The position is valid and not between borders
             else if (validPos == 1)
             {
-                shadow.UpdateShadowMove(-1); // Update the shadow
                 UpdateGrid(); // Update the grid since it is valid
             }
             else
@@ -77,6 +75,7 @@ public class Group : MonoBehaviour
                 transform.position += new Vector3(1, 0, 0); // Revert
                 cam.transform.position += new Vector3(1, 0, 0);
             }
+            shadow.UpdateShadowMove(-1); // Update the shadow
         }
         // Move right
         else if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -90,20 +89,19 @@ public class Group : MonoBehaviour
             // If the method returns 2 or we are in between borders
             if ((validPos == 2) || inBetweenBorders)
             {
-                inBetweenBorders = true;
                 UpdateGridInBetweenBorders();
             }
             // Otherwise the position is entirely valid and not between borders
             else if (validPos == 1)
             {
                 UpdateGrid(); // Update the grid since it is valid
-                shadow.UpdateShadowMove(1); // Update the shadow
             }
             else
             {
                 transform.position += new Vector3(-1, 0, 0); // Its not valid so revert to original position
                 cam.transform.position += new Vector3(-1, 0, 0);
             }
+            shadow.UpdateShadowMove(1); // Update the shadow
         }
         // Rotate
         else if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -123,14 +121,13 @@ public class Group : MonoBehaviour
             // Otherwise the position is entirely valid and not between borders
             else if (validPos == 1)
             {
-                shadow.UpdateShadowRotate(-90); // Update the shadow
                 UpdateGrid(); // Update the grid since it is valid
             }
             else
             {
                 transform.Rotate(0, 0, 90); // Its not valid so revert to original position
             }
-
+            shadow.UpdateShadowRotate(-90); // Update the shadow
         }
         // Fall
         else if (Input.GetKeyDown(KeyCode.DownArrow) || (Time.time - lastFall >= 2.0))
