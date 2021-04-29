@@ -30,7 +30,7 @@ public class Playfield : MonoBehaviour
     // Checks if the point is outside the left or right borders
     public static bool OutsideBorder(Vector2 pos)
     {
-        return (((int)pos.x < 0) || ((int)pos.x >= w));
+        return ((int)pos.y > 0)&&(((int)pos.x < 0) || ((int)pos.x >= w));
     }
 
     public static void DeleteRow(int y)

@@ -45,47 +45,65 @@ public class Group : MonoBehaviour
 
     private int IsValidGridPos()
     {
+        bool outsideBorder = false;
         foreach (Transform child in transform)
         {
             Vector2 v = Playfield.RoundVec2(child.position);
             child.position = v;
 
             // Not inside border?
-            if (!Playfield.InsideBorder(v))
+            if (!outsideBorder)
+                outsideBorder = !Playfield.InsideBorder(v);
+
+            // Y is out of bounds
+            if(v.y < 0)
             {
-                if (Playfield.OutsideBorder(v))
-                {
-                    return 2;
-                }
                 return 0;
             }
+            if (outsideBorder)
+            {
+                // If outside the left border sets the x component to the width
+                if (v.x < 0)
+                    v.x = Playfield.w + v.x; // putting it on the right side
+                else if (v.x >= Playfield.w)
+                    v.x = v.x - Playfield.w; // putting it on the left side
+            }
+
             // Block in grid cell (and not part of same group)?
-            if (Playfield.grid[(int)v.x, (int)v.y] != null &&
+            if (Playfield.grid[(int)v.x, (int)v.y] != null && 
                 Playfield.grid[(int)v.x, (int)v.y].parent != transform)
             {
                 return 0;
             }
         }
+        if (outsideBorder)
+        {
+            return 2;
+        } 
         return 1;
     }
 
     // Update is called once per frame
     void Update()
     {
+        int validPos;
+
         // Move left
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             transform.position += new Vector3(-1, 0, 0);
             cam.transform.position += new Vector3(-1, 0, 0);
 
+            validPos = IsValidGridPos();
+
             // If the method returns 2 or we are in between borders
-            if ((IsValidGridPos() == 2) || (inBetweenBorders))
+            if ((validPos == 2) || inBetweenBorders)
             {
                 inBetweenBorders = true; // We are still in between borders
                 UpdateGridInBetweenBorders(); // Update in between borders
             }
             // The position is valid and not between borders
-            else if (IsValidGridPos() == 1)
+            else if (validPos == 1)
             {
                 UpdateGrid(); // Update the grid since it is valid
             }
@@ -102,14 +120,16 @@ public class Group : MonoBehaviour
             transform.position += new Vector3(1, 0, 0);
             cam.transform.position += new Vector3(1, 0, 0);
 
+            validPos = IsValidGridPos();
+
             // If the method returns 2 or we are in between borders
-            if ((IsValidGridPos() == 2) || (inBetweenBorders))
+            if ((validPos == 2) || inBetweenBorders)
             {
                 inBetweenBorders = true;
                 UpdateGridInBetweenBorders();
             }
             // Otherwise the position is entirely valid and not between borders
-            else if (IsValidGridPos() == 1)
+            else if (validPos == 1)
             {
                 UpdateGrid(); // Update the grid since it is valid
             }
@@ -127,13 +147,15 @@ public class Group : MonoBehaviour
             else
                 transform.Rotate(0, 0, -90); // Rotate
 
+            validPos = IsValidGridPos();
+
             // If the method returns 2 or we are in between borders
-            if (IsValidGridPos() == 2)
+            if (validPos == 2)
             {
                 UpdateGridInBetweenBorders();
             }
             // Otherwise the position is entirely valid and not between borders
-            else if (IsValidGridPos() == 1)
+            else if (validPos == 1)
             {
 
                 UpdateGrid(); // Update the grid since it is valid
@@ -150,18 +172,30 @@ public class Group : MonoBehaviour
             // Modify position
             transform.position += new Vector3(0, -1, 0);
 
+            validPos = IsValidGridPos();
+
             // See if the new position is valid
-            if (IsValidGridPos() == 1)
+            if (validPos == 2)
             {
-                UpdateGrid(); // Update the grid since it is valid
+                UpdateGridInBetweenBorders(); 
             }
-            else if(IsValidGridPos() == 2)
+            else if(validPos == 1)
             {
-                UpdateGridInBetweenBorders();
+                UpdateGrid();// Update the grid since it is valid
             }
             else
             {
                 transform.position += new Vector3(0, 1, 0); // Revert
+
+                if(!inBetweenBorders)
+                {
+                    UpdateGrid();
+                }
+                else
+                {
+                    UpdateGridInBetweenBorders();
+                    inBetweenBorders = false;
+                }
 
                 // Clear filled horizontal lines
                 Playfield.DeleteFullRows();
@@ -173,28 +207,29 @@ public class Group : MonoBehaviour
                 enabled = false;
 
                 cam.transform.position = cameraPos;
-                /*
-                if ((transform.position.x < 7) || (transform.position.x > 23))
-                {
-                    // Fix the sides
-                    //FindObjectOfType<Board>().FixSides();
-                }*/
+
+                FindObjectOfType<Board>().FixSides(transform);
             }
             lastFall = Time.time; // Update this as last time decreased y position
         }
         // Immediate drop
         else if (Input.GetKeyDown(KeyCode.Space)) // Immediate drop
         {
+            validPos = IsValidGridPos();
             // Loop while making sure the position is valid and adding a vector in the downward direction
-            while (IsValidGridPos() == 1)
+            while ((validPos == 1)||(validPos==2))
             {
                 transform.position += new Vector3(0, -1, 0); // Send it one down
+                validPos = IsValidGridPos();
             }
 
             transform.position += new Vector3(0, 1, 0); // Revert by one step since we went too far
 
             // Update the grid
-            UpdateGrid();
+            if (!inBetweenBorders)
+                UpdateGrid();
+            else
+                UpdateGridInBetweenBorders();
 
             // Clear filled horizontal lines
             Playfield.DeleteFullRows();
@@ -206,12 +241,9 @@ public class Group : MonoBehaviour
             enabled = false;
 
             cam.transform.position = cameraPos;
-            /*
-            if ((transform.position.x < 7) || (transform.position.x > 23))
-            {
-                // Fix the sides
-                FindObjectOfType<Board>().FixSides();
-            }*/
+
+            FindObjectOfType<Board>().FixSides(transform);
+
         }
     }
 
@@ -264,72 +296,43 @@ public class Group : MonoBehaviour
                 }
             }
         }
+
         Vector2 v = Playfield.RoundVec2(transform.position);
-
-        int transformPosX = (int)v.x;
-
-        if ((transformPosX < 0) || (transformPosX >= Playfield.w))
+        // Check if the transform is before or after the border
+        if (v.x >= Playfield.w)
         {
-            Debug.Log("Running");
-            /*
-            // Get the x component of the piece that belonged to the actual transform
-            int childPosX = (int)Mathf.Round(transform.GetChild(childWithTransform).transform.position.x);
-
-            int move = 0; // Will use this vector to move all the small block transforms
-
-            v = Playfield.RoundVec2(transform.position);
-
-            move = childPosX - (int)v.x; // The amount we have to compensate is the difference between my child's
-            // position and my current position
-
-            Debug.Log(move);
-
-            v.x = childPosX; // Set the new transform position to the old child position
-            */
-            
-
-            if (transform.position.x >= Playfield.w)
-            {
-                transform.position -= new Vector3(Playfield.w, 0);
-            }
-            else
-            {
-                transform.position += new Vector3(Playfield.w, 0);
-            }
-            cam.transform.position = new Vector3(transform.position.x, cam.transform.position.y, cam.transform.position.z);
-           // inBetweenBorders = false; // Do this to verify that the piece is still in between the border
+            transform.position -= new Vector3(Playfield.w, 0);
         }
+        else if(v.x < 0)
+        {
+            transform.position += new Vector3(Playfield.w, 0);
+        }
+
+        // Change the camera position
+        cam.transform.position = new Vector3(transform.position.x, cam.transform.position.y, cam.transform.position.z);
+
+        // Do this to verify the piece is still in between borders
+        inBetweenBorders = false;
 
         // Add new children to the grid
         foreach (Transform child in transform)
         {
             v = Playfield.RoundVec2(child.position);
 
-            Debug.Log(v.x + " " + v.y);
-
             // If outside the left border sets the x component to the width
             if (v.x < 0)
             {
                 inBetweenBorders = true;
                 v.x = Playfield.w + v.x; // putting it on the right side
-              //  child.position = v;
             }
             // If outside the rigth border sets the x component to zero
             else if (v.x >= Playfield.w)
             {
                 inBetweenBorders = true;
                 v.x = v.x - Playfield.w; // putting it on the left side
-               // child.position = v;
             }
             Playfield.grid[(int)v.x, (int)v.y] = child; // Back into the grid at new position
         }
-           // transform.position = v; // Set the transform position to our vector     
-            /*
-            // Now we actually go to every child and perform the transform to move it to the right place
-            foreach (Transform child in transform)
-            {
-                child.position -= new Vector3(move, 0, 0);
-            }*/
     }
 
     void UpdateGrid()
