@@ -53,7 +53,7 @@ public class Group : MonoBehaviour
         int validPos;
 
         // Move left
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && !(PauseMenu.isPaused))
         {
             transform.position += new Vector3(-1, 0, 0);
             cam.transform.position += new Vector3(-1, 0, 0);
@@ -78,7 +78,7 @@ public class Group : MonoBehaviour
             shadow.UpdateShadowMove(-1); // Update the shadow
         }
         // Move right
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.RightArrow) && !(PauseMenu.isPaused))
         {
             // Modify position
             transform.position += new Vector3(1, 0, 0);
@@ -104,7 +104,7 @@ public class Group : MonoBehaviour
             shadow.UpdateShadowMove(1); // Update the shadow
         }
         // Rotate
-        else if (Input.GetKeyDown(KeyCode.UpArrow))
+        else if (Input.GetKeyDown(KeyCode.UpArrow) && !(PauseMenu.isPaused))
         {
             if (inBetweenBorders)
                 RotateInBetweenBorders();
@@ -130,7 +130,7 @@ public class Group : MonoBehaviour
             shadow.UpdateShadowRotate(-90); // Update the shadow
         }
         // Fall
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || (Time.time - lastFall >= 2.0))
+        else if ((Input.GetKeyDown(KeyCode.DownArrow) || (Time.time - lastFall >= 2.0)) && !(PauseMenu.isPaused))
         {
             // Modify position
             transform.position += new Vector3(0, -1, 0);
@@ -180,7 +180,7 @@ public class Group : MonoBehaviour
             lastFall = Time.time; // Update this as last time decreased y position
         }
         // Immediate drop
-        else if (Input.GetKeyDown(KeyCode.Space)) // Immediate drop
+        else if (Input.GetKeyDown(KeyCode.Space) && !(PauseMenu.isPaused)) // Immediate drop
         {
             validPos = IsValidGridPos();
             // Loop while making sure the position is valid and adding a vector in the downward direction
