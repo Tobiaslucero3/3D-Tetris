@@ -12,11 +12,19 @@ public class Difficulty : MonoBehaviour
 
     public void incDifficulty ()
     {
+        if (difficulty == 10)
+        {
+            return;
+        }
         difficulty++;
     }
 
     public void decDifficulty ()
     {
+        if(difficulty == 1)
+        {
+            return;
+        }
         difficulty--;
     }
 
