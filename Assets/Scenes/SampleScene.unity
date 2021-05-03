@@ -1749,7 +1749,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Quit
+  m_Text: 'QUIT
 
 '
 --- !u!222 &1011866650
@@ -1921,7 +1921,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Resume
+  m_Text: RESUME
 --- !u!222 &1163527128
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2410,7 +2410,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Difficulty: '
+  m_Text: 'DIFFICULTY: '
 --- !u!114 &1767699741
 MonoBehaviour:
   m_ObjectHideFlags: 0

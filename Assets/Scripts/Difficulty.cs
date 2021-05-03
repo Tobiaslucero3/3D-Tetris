@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Difficulty : MonoBehaviour
 {
     public static int difficulty = 1;
-    public static string difficultyTextString = "Difficulty: ";
+    public static string difficultyTextString = "DIFFICULTY: ";
 
     public Text difficultyText;
 
@@ -34,7 +34,7 @@ public class Difficulty : MonoBehaviour
     }
     void Update()
     {
-        difficultyTextString = "Difficulty: " + difficulty.ToString();
+        difficultyTextString = "DIFFICULTY: " + difficulty.ToString();
         difficultyText.text = difficultyTextString;
     }
 }
