@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,11 +22,11 @@ public class Shadow : MonoBehaviour
         foreach (Transform child in transform)
         {
             pos = (int)Mathf.Round(child.position.y);
-            if(pos==0)
+            if (pos == 0)
             {
                 break;
             }
-            if(j == childCount - 1)
+            if (j == childCount - 1)
             {
                 transform.position -= new Vector3(0, 1);
                 break;
@@ -41,7 +42,7 @@ public class Shadow : MonoBehaviour
             {
                 pos = (int)Mathf.Round(child.position.y);
                 posx = (int)Mathf.Round(child.position.x);
-                if(pos < 0)
+                if (pos < 0)
                 {
                     transform.position += new Vector3(0, 1);
                     break;
@@ -136,5 +137,29 @@ public class Shadow : MonoBehaviour
         Destroy(this);
     }
 
+    public int GetYPos()
+    {
+        int ypos = 0;
+        foreach (Transform child in transform)
+        {
+            if(child.position.y > ypos)
+            {
+                ypos = (int)child.position.y;
+            }
+        }
+        return ypos;
+    }
+
+    public void CheckIfActive()
+    {
+        int parentYPos = parent.GetYPos();
+        int yPos = GetYPos();
+
+        if((parentYPos < yPos)||(parentYPos < 3))
+        {
+            gameObject.SetActive(false);
+            enabled = false;
+        }
+    }
 }
 

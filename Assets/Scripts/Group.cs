@@ -75,7 +75,8 @@ public class Group : MonoBehaviour
                 transform.position += new Vector3(1, 0, 0); // Revert
                 cam.transform.position += new Vector3(1, 0, 0);
             }
-            shadow.UpdateShadowMove(-1); // Update the shadow
+            if(shadow.enabled)
+                shadow.UpdateShadowMove(-1); // Update the shadow
         }
         // Move right
         else if (Input.GetKeyDown(KeyCode.RightArrow) && !(PauseMenu.isPaused))
@@ -101,7 +102,8 @@ public class Group : MonoBehaviour
                 transform.position += new Vector3(-1, 0, 0); // Its not valid so revert to original position
                 cam.transform.position += new Vector3(-1, 0, 0);
             }
-            shadow.UpdateShadowMove(1); // Update the shadow
+            if (shadow.enabled)
+                shadow.UpdateShadowMove(1); // Update the shadow
         }
         // Rotate
         else if (Input.GetKeyDown(KeyCode.UpArrow) && !(PauseMenu.isPaused))
@@ -127,7 +129,8 @@ public class Group : MonoBehaviour
             {
                 transform.Rotate(0, 0, 90); // Its not valid so revert to original position
             }
-            shadow.UpdateShadowRotate(-90); // Update the shadow
+            if (shadow.enabled)
+                shadow.UpdateShadowRotate(-90); // Update the shadow
         }
         // Fall
         else if ((Input.GetKeyDown(KeyCode.DownArrow) || (Time.time - lastFall >= 2.0)) && !(PauseMenu.isPaused))
@@ -162,7 +165,8 @@ public class Group : MonoBehaviour
                 }
 
                 // Destroy the shadow
-                shadow.DestroyShadow();
+                if (shadow.enabled)
+                    shadow.DestroyShadow();
 
                 // Clear filled horizontal lines
                 Playfield.DeleteFullRows();
@@ -215,6 +219,7 @@ public class Group : MonoBehaviour
             FindObjectOfType<Board>().FixSides(transform);
 
         }
+        shadow.CheckIfActive();
     }
 
     private int IsValidGridPos()
